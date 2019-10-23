@@ -2,7 +2,8 @@ import tkinter as tk
 import os
 import sys
 import requests, re, time
-from bs4 import BeautifulSoup
+#import cron_dy
+import tally
 root= tk.Tk()
 
  
@@ -25,13 +26,14 @@ def run():
     r = requests.get('http://localhost:9002')
     r.status_code 
 def ru():
-    os.system('tally.py')
+    #os.system('tally.py')
+    tally.performTally()
+    run()
 def quit1():
     root.destroy()
 def f():
     quit1()
     ru()
-    run()
 def cron():
     os.system('cron_dy.py')
 

@@ -3,6 +3,7 @@ import csv
 import os
 import sys
 import requests, re, time
+from tally import performTally
 
 class App(Frame):
     def __init__(self, master=None):
@@ -44,11 +45,11 @@ class App(Frame):
 
     
 def quit1():
-        root.destroy()
+    root.destroy()
 
 
 def tally():
-    os.system('tally.py')
+    performTally()
 
 def run():
     r = requests.get('http://localhost:9002')
@@ -58,7 +59,7 @@ def back():
     quit1()
     tally()
     run()
-if __name__ == "__main__":
+def performCron_dy():
     root=Tk()
     root.title('Tally|cron')
     root.geometry('500x100')
