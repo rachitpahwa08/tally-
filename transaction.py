@@ -1,7 +1,6 @@
 from tkinter import *
 import os
 import sys
-#from tally import performTally
 
 def performTransaction():
     # create a GUI window 
@@ -20,6 +19,7 @@ def performTransaction():
         print("gotIT")
     def quit1():
         root.destroy()
+        performTally()
     def run_quit1():
         quit1()
         run()
@@ -37,4 +37,3 @@ def performTransaction():
 
 
     root.mainloop()
-    

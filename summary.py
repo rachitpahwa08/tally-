@@ -16,7 +16,7 @@ def performSummary():
     root.geometry("500x300") 
   
     def run():
-        os.system('tally.py')
+        performTally()
 
     def quit1():
         root.destroy()
@@ -36,4 +36,3 @@ def performSummary():
 
 
     root.mainloop()
-    

@@ -51,4 +51,3 @@ def perfromTallyConnector():
 
 
     root.mainloop()
-

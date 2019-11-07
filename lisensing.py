@@ -2,7 +2,7 @@ import tkinter as tk
 import os
 import sys
 import requests, re, time
-#import cron_dy
+import cron_dy
 import tally
 root= tk.Tk()
 
@@ -35,7 +35,7 @@ def f():
     quit1()
     ru()
 def cron():
-    os.system('cron_dy.py')
+    cron_dy.performCron_dy()
 
 def s():
     quit1()

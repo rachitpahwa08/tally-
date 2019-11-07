@@ -11,7 +11,9 @@ import xmltodict
 import pprint
 from google.cloud import storage
 from google.oauth2 import service_account
-from xml.etree import ElementTree as ET
+from xml.etree import ElementTree as ET 
+import tkinter
+from tkinter import messagebox
 
 def performStockTransaction():
     pp = pprint.PrettyPrinter(indent=4)
@@ -128,31 +130,30 @@ def performStockTransaction():
 
                     
                         with open (completeName, "a",newline='') as file:
-                            headers = ["Transaction ID", "Transaction Type (In/Out/Return)", "Source", "Destination", "SKU", "Quantity", "Unit", "Year", "Month", "Date", "Document Ref"]
+                            headers = ("Transaction ID", "Transaction Type (In/Out/Return)", "Source", "Destination", "SKU", "Quantity", "Unit", "Year", "Month", "Date", "Document Ref")
                             writer = csv.writer(file, delimiter=' ', quotechar=' ', dialect='excel')
+                            #writer.writerow(headers)
                             writer.writerow(csvRow)
                             #writer.writerow()
                         #file1 = open(completeName, "w")
                         #csvwriter = csv.writer(file1)
 
             
-            credentials = service_account.Credentials.from_service_account_file('D:/Equipshare/tally/Tally-connector-10b12c06b3eb.json',scopes=["https://www.googleapis.com/auth/cloud-platform"],)
+            credentials = service_account.Credentials.from_service_account_file(os.getcwd()+'\Tally-connector-10b12c06b3eb.json',scopes=["https://www.googleapis.com/auth/cloud-platform"],)
             client = storage.Client(credentials=credentials, project='tally-connector')
             bucket = client.get_bucket('tally-connector')
-            blob = bucket.blob('myfile')
-            blob.upload_from_filename('C:/Users/91908/Desktop/Tally/project/Transactions-23-10-19.csv')
+            blob = bucket.blob(savedFilename+'.csv')
+            blob.upload_from_filename(completeName)
             if(blob.public_url):
                 print("file uploded successfully")
-
-    
-                    
-
-                    
+                # root = tkinter.Tk()
+                # root.withdraw()
+                #messagebox.showinfo("Success", "File Uploaded to cloud")
+                return True
+            else:
+                return False  
         except TypeError:
             print('nothing')
-
-
-
     csvFilePath = "config.csv"
     jsonFilePath = "file.json"
     arr = []
@@ -171,30 +172,16 @@ def performStockTransaction():
     #print()
 
     # Main
-    fromDate = "20190301"
-    toDate = "20190731"
+    date=datetime.datetime.now()
+    fromDate = str(date.year)+str(date.month)+str(date.day-1)
+    toDate = str(date.year)+str(date.month)+str(date.day)
     getSummaryInDetail(fromDate,toDate,"Sales")
     #fromDate = date.strftime("%y%m%d"), toDate = date.strftime("%y%m%d")
-    def job():
-        getSummaryInDetail(fromDate, toDate, ledgers)
     
-    with open('cron.csv', 'r') as f:
-        res=f.read()
-        minutes=res.split(",")[1].split('"')[0]
-        hours=res.split(",")[0][1:]
-        #print(miniutes+" "+hours)
     
-    schedule.every(2).minutes.do(job)
-    schedule.every().hour.do(job)
-    print(hours+" "+minutes)
-    schedule.every().day.at("{}:{}".format(hours,minutes)).do(job)
-
-    while 1:
-        schedule.run_pending()
-
     fields = ("Transaction ID", "Transaction Type (In/Out/Return)", "Source", "Destination", "SKU", "Quantity", "Unit", "Year", "Month", "Date", "Document Ref")
     ledgers = ['Purchase', 'Sales', 'Payment'] ;
-    
+ 
     fieldsWritten = True
     if fieldsWritten:
               for i in range(len(ledgers)):
@@ -204,4 +191,24 @@ def performStockTransaction():
 
     else:
         fieldsWritten = False
-    #this is code for cron that is static one how i call that time here?
+		
+    def job():
+        getSummaryInDetail(fromDate, toDate, ledgers)
+    
+        with open('cron.csv', 'r') as f:
+            res=f.read()
+            minutes=res.split(",")[1].split('"')[0]
+            hours=res.split(",")[0][1:]
+        #print(miniutes+" "+hours)
+    
+        schedule.every(2).minutes.do(job)
+        schedule.every().hour.do(job)
+        print(hours+" "+minutes)
+        schedule.every().day.at("{}:{}".format(hours,minutes)).do(job)
+
+        while 1:
+            schedule.run_pending()
+        
+
+    
+ 

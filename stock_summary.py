@@ -12,6 +12,9 @@ import time
 from google.cloud import storage
 from google.oauth2 import service_account
 from xml.etree import ElementTree as ET
+import tkinter
+from tkinter import messagebox
+
 
 def perfromStock_Summary():
     pp = pprint.PrettyPrinter(indent=4)
@@ -91,27 +94,32 @@ def perfromStock_Summary():
                         #print(csvRow)
                     
                         with open (completeName, "a",newline='') as file:
-                            headings = ("SKU", "Stock Location", "Report Year", "Report Month"," Report Day", "Closing Quantity") 
+                            headings = ["SKU", "Stock Location", "Report Year", "Report Month"," Report Day", "Closing Quantity"] 
                             writer = csv.writer(file, delimiter=' ', quotechar=' ', dialect='excel')
+                            #writer.writerow(headers)
                             writer.writerow(csvRow)
                         #file1 = open(completeName, "w")
                         #csvwriter = csv.writer(file1)
 
 
             
-            credentials = service_account.Credentials.from_service_account_file('D:/Equipshare/tally/Tally-connector-10b12c06b3eb.json',scopes=["https://www.googleapis.com/auth/cloud-platform"],)
+            credentials = service_account.Credentials.from_service_account_file(os.getcwd()+'\Tally-connector-10b12c06b3eb.json',scopes=["https://www.googleapis.com/auth/cloud-platform"],)
             client = storage.Client(credentials=credentials, project='tally-connector')
             bucket = client.get_bucket('tally-connector')
-            blob = bucket.blob('myfile')
-            blob.upload_from_filename('C:/Users/91908/Desktop/Tally/project/stock-summary-23-10-19.csv')
+            blob = bucket.blob(savedFilename+'.csv')
+            blob.upload_from_filename(completeName)
             if(blob.public_url):
                 print("file uploded successfully")
-
-
+                # root = tkinter.Tk()
+                # root.withdraw()
+                # messagebox.showinfo("Success", "File Uploaded to cloud")
+                return True
+            else:
+                return False
                     
         except TypeError:
             print('nothing')
-    
+
     csvFilePath = "config.csv"
     jsonFilePath = "file.json"
     arr = []
@@ -149,18 +157,21 @@ def perfromStock_Summary():
     for g in  godownNames:
         getstocksummary(g,arr)
 
-   
-
     def job():
-        getstocksummary(g,arr)
-        reader = csv.DictReader(open("cron.csv"))
-        for raw in reader:
-            print(raw)
+        #getSummaryInDetail(fromDate, toDate, ledgers)
+    
+        with open('cron.csv', 'r') as f:
+            res=f.read()
+            minutes=res.split(",")[1].split('"')[0]
+            hours=res.split(",")[0][1:]
+        #print(miniutes+" "+hours)
+    
+        schedule.every(2).minutes.do(job)
+        schedule.every().hour.do(job)
+        print(hours+" "+minutes)
+        schedule.every().day.at("{}:{}".format(hours,minutes)).do(job)
 
-    schedule.every(2).minutes.do(job)
-    schedule.every().hour.do(job)
-    schedule.every().day.at("10:53").do(job)
-
-    while 1:
-        schedule.run_pending()
-        time.sleep(1)
+        while 1:
+            schedule.run_pending()
+        
+        
